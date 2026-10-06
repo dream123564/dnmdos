@@ -15,13 +15,14 @@ export async function onRequest(context) {
     return new Response(JSON.stringify(results));
   }
 
-  // POST - 添加商品
+  // POST - 添加商品（兼容前端传 mid / merchant_id）
   if (request.method === 'POST') {
     const body = await request.json();
-    const { merchant_id, name, short_desc, price, stock } = body;
+    const merchant_id = body.merchant_id ?? body.mid;
+    const { name, short_desc, price, stock } = body;
     await env.DB.prepare(
       'INSERT INTO goods (merchant_id, name, short_desc, price, stock) VALUES (?, ?, ?, ?, ?)'
-    ).bind(merchant_id, name, short_desc, price, stock || 0).run();
+    ).bind(merchant_id, name, short_desc || '', price, stock || 0).run();
     return new Response(JSON.stringify({ success: true }));
   }
 

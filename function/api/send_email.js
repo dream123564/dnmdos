@@ -1,7 +1,5 @@
 // 发送邮件 API - EmailJS
-const EMAILJS_SERVICE_ID = 'service_b14b5b2';
-const EMAILJS_TEMPLATE_ID = 'template_r3dldzr';
-const EMAILJS_PRIVATE_KEY = 'HBiEJBAk4IA61lVhIFU0U';
+import { CONFIG } from '../_lib/config.js';
 
 export async function onRequestPost(context) {
   const { request } = context;
@@ -13,19 +11,19 @@ export async function onRequestPost(context) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + EMAILJS_PRIVATE_KEY
+        'Authorization': 'Bearer ' + CONFIG.EMAILJS_PRIVATE_KEY,
       },
       body: JSON.stringify({
-        service_id: EMAILJS_SERVICE_ID,
-        template_id: EMAILJS_TEMPLATE_ID,
+        service_id: CONFIG.EMAILJS_SERVICE_ID,
+        template_id: CONFIG.EMAILJS_TEMPLATE_ID,
         template_params: {
           to_email: to_email,
           subject: subject,
           message: message,
           card_content: card_content || '',
-          order_no: order_no || ''
-        }
-      })
+          order_no: order_no || '',
+        },
+      }),
     });
 
     const data = await res.text();

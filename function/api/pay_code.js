@@ -1,47 +1,37 @@
-import { createMD5 } from 'cloudflare:workers';
-
-const PAY_API = 'https://pay.ykmcn.com/submit.php';
-const PID = '1184';
-const KEY = 'pv9PDVv1fQJ12vAtAQqcPD9p8fpdV2UQ';
-
-async function md5(str) {
-  const data = new TextEncoder().encode(str);
-  const hash = await crypto.subtle.digest('MD5', data);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function makeSign(params) {
-  const keys = Object.keys(params).filter(k => k !== 'sign' && k !== 'sign_type' && params[k] !== '').sort();
-  const str = keys.map(k => `${k}=${params[k]}`).join('&') + KEY;
-  return md5(str);
-}
+// 注册验证码下单 API - 易支付 V2（￥0.10 获取邮箱验证码）
+import { CONFIG } from '../_lib/config.js';
+import { rsaSign, buildSignContent } from '../_lib/rsa.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   const body = await request.json();
   const email = body.email;
+  if (!email) {
+    return new Response(JSON.stringify({ error: '缺少邮箱' }), { status: 400 });
+  }
 
+  const origin = new URL(request.url).origin;
   const out_trade_no = 'code_' + Date.now().toString() + Math.floor(Math.random() * 100000);
   const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // 存验证码到数据库（等支付成功后用）
+  // 先落库，支付成功后由 notify 回填状态并发邮件
   await env.DB.prepare('INSERT INTO code_orders (order_no, email, code, status) VALUES (?, ?, ?, 0)')
     .bind(out_trade_no, email, code).run();
 
   const params = {
-    pid: PID,
+    pid: CONFIG.PID,
     type: 'alipay',
     out_trade_no: out_trade_no,
-    notify_url: 'https://serverdo.ccwu.cc/api/notify',
-    return_url: 'https://serverdo.ccwu.cc/register.html',
+    notify_url: origin + '/api/notify',
+    return_url: origin + '/register.html',
     name: '邮箱验证码',
     money: '0.10',
-    sign_type: 'MD5'
+    timestamp: Math.floor(Date.now() / 1000).toString(),
+    sign_type: 'RSA',
   };
+  params.sign = await rsaSign(buildSignContent(params), CONFIG.PRIVATE_KEY);
 
-  params.sign = await makeSign(params);
-  const query = new URLSearchParams(params).toString();
-  const payUrl = `${PAY_API}?${query}`;
+  const payUrl = CONFIG.PAY_API_SUBMIT + '?' + new URLSearchParams(params).toString();
 
   return new Response(JSON.stringify({ pay_url: payUrl }));
 }
