@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品管理 - 龙黑发卡</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f5f7;color:#333;padding-bottom:20px}
+.header{background:linear-gradient(135deg,#1677FF,#2196F3);color:#fff;padding:16px;display:flex;align-items:center;gap:12px}
+.header a{color:white;text-decoration:none;font-size:18px}
+.add-btn{position:fixed;bottom:30px;right:20px;width:56px;height:56px;border-radius:50%;background:#2196F3;color:white;border:none;font-size:28px;box-shadow:0 4px 12px rgba(33,150,243,.4);cursor:pointer}
+.goods-item{background:#fff;margin:12px;border-radius:12px;padding:16px}
+.goods-name{font-size:16px;font-weight:600;margin-bottom:6px}
+.goods-info{font-size:13px;color:#999;margin-bottom:8px}
+.goods-price{color:#ff5252;font-weight:700;font-size:18px}
+.row{display:flex;justify-content:space-between;align-items:center}
+.actions{margin-top:12px;display:flex;gap:8px}
+.act-btn{padding:6px 14px;border:none;border-radius:6px;font-size:13px;cursor:pointer}
+.act-edit{background:#e3f2fd;color:#1677FF}
+.act-del{background:#ffebee;color:#f44336}
+</style>
+</head>
+<body>
+<div class="header">
+  <a href="dashboard.html">‹</a>
+  <h2>商品管理</h2>
+</div>
+<div id="list"></div>
+<button class="add-btn" onclick="location.href='goods_edit.html'">+</button>
+<script>
+const uid=localStorage.getItem('uid');
+async function load(){
+  const res=await fetch('/api/goods?mid='+uid);
+  const data=await res.json();
+  const el=document.getElementById('list');
+  if(data.length===0){el.innerHTML='<div style="text-align:center;padding:80px;color:#999">暂无商品，点右下角添加</div>';return}
+  el.innerHTML=data.map(g=>`
+    <div class="goods-item">
+      <div class="goods-name">${g.name}</div>
+      <div class="goods-info">库存：${g.stock} 件</div>
+      <div class="row">
+        <div class="goods-price">￥${g.price.toFixed(2)}</div>
+        <div class="actions">
+          <button class="act-btn act-edit" onclick="location.href='goods_edit.html?id=${g.id}'">编辑</button>
+          <button class="act-btn act-del" onclick="del(${g.id})">删除</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+async function del(id){
+  if(!confirm('确定删除？'))return;
+  await fetch('/api/goods?id='+id,{method:'DELETE'});
+  load();
+}
+load();
+</script>
+</body>
+</html>

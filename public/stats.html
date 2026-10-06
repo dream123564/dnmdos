@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>统计数据 - 龙黑发卡</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f5f7;color:#333}
+.header{background:linear-gradient(135deg,#1677FF,#2196F3);color:#fff;padding:16px;display:flex;align-items:center;gap:12px}
+.header a{color:white;text-decoration:none;font-size:18px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px}
+.stat-card{background:#fff;border-radius:12px;padding:20px;text-align:center}
+.stat-num{font-size:28px;font-weight:700;color:#2196F3}
+.stat-label{font-size:13px;color:#999;margin-top:6px}
+.chart-card{background:#fff;margin:16px;border-radius:12px;padding:20px}
+.bar{height:24px;background:#e3f2fd;border-radius:6px;margin:8px 0;position:relative}
+.bar-fill{height:100%;background:linear-gradient(90deg,#1677FF,#2196F3);border-radius:6px}
+</style>
+</head>
+<body>
+<div class="header">
+  <a href="dashboard.html">‹</a>
+  <h2>数据统计</h2>
+</div>
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-num">0</div><div class="stat-label">今日订单</div></div>
+  <div class="stat-card"><div class="stat-num">￥0.00</div><div class="stat-label">今日收入</div></div>
+  <div class="stat-card"><div class="stat-num">0</div><div class="stat-label">总订单</div></div>
+  <div class="stat-card"><div class="stat-num">￥0.00</div><div class="stat-label">总收入</div></div>
+</div>
+<div class="chart-card">
+  <h3 style="margin-bottom:16px">近7天销售</h3>
+  <div class="bar"><div class="bar-fill" style="width:30%"></div></div>
+  <div class="bar"><div class="bar-fill" style="width:50%"></div></div>
+  <div class="bar"><div class="bar-fill" style="width:20%"></div></div>
+  <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+  <div class="bar"><div class="bar-fill" style="width:40%"></div></div>
+  <div class="bar"><div class="bar-fill" style="width:60%"></div></div>
+  <div class="bar"><div class="bar-fill" style="width:85%"></div></div>
+</div>
+</body>
+</html>

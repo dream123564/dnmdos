@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡密管理 - 龙黑发卡</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f5f7;color:#333}
+.header{background:linear-gradient(135deg,#1677FF,#2196F3);color:#fff;padding:16px;display:flex;align-items:center;gap:12px}
+.header a{color:white;text-decoration:none;font-size:18px}
+.form-card{background:#fff;margin:16px;border-radius:12px;padding:20px}
+textarea{width:100%;height:150px;padding:12px;border:1px solid #eee;border-radius:10px;font-size:14px;resize:vertical}
+.tip{font-size:13px;color:#999;margin:10px 0}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;cursor:pointer;background:linear-gradient(135deg,#1677FF,#2196F3);color:#fff;margin-top:10px}
+.card-item{background:#fff;margin:12px;border-radius:12px;padding:16px;font-family:monospace;font-size:14px}
+.used{color:#999;text-decoration:line-through}
+</style>
+</head>
+<body>
+<div class="header">
+  <a href="dashboard.html">‹</a>
+  <h2>卡密管理</h2>
+</div>
+<div class="form-card">
+  <div class="form-group">
+    <label>选择商品</label>
+    <select id="goods_id" style="width:100%;padding:12px;border:1px solid #eee;border-radius:10px"></select>
+  </div>
+  <div class="form-group">
+    <label>批量导入卡密（每行一个）</label>
+    <textarea id="cards" placeholder="卡密1&#10;卡密2&#10;卡密3"></textarea>
+  </div>
+  <button class="btn" onclick="importCards()">导入卡密</button>
+</div>
+<div id="list"></div>
+<script>
+const uid=localStorage.getItem('uid');
+async function loadGoods(){
+  const res=await fetch('/api/goods?mid='+uid);
+  const goods=await res.json();
+  document.getElementById('goods_id').innerHTML=goods.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+}
+async function importCards(){
+  const text=document.getElementById('cards').value.trim();
+  if(!text){alert('请输入卡密');return}
+  const list=text.split('\n').filter(x=>x.trim());
+  await fetch('/api/cards',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goods_id:document.getElementById('goods_id').value,cards:list})});
+  alert('导入成功');
+  loadCards();
+}
+async function loadCards(){
+  const gid=document.getElementById('goods_id').value;
+  const res=await fetch('/api/cards?goods_id='+gid);
+  const data=await res.json();
+  document.getElementById('list').innerHTML=data.map(c=>`
+    <div class="card-item ${c.status==1?'used':''}">${c.content} ${c.status==1?'<span style="float:right;color:#f44336">已使用</span>':'<span style="float:right;color:#4caf50">未使用</span>'}</div>
+  `).join('');
+}
+loadGoods().then(loadCards);
+</script>
+</body>
+</html>
