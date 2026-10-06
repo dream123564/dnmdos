@@ -81,7 +81,7 @@ async function buy(id){
   if(!goods)return;
   const email=prompt('请输入你的邮箱（用于接收卡密）：');
   if(!email)return;
-  const res=await fetch('/api/pay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goods_id:id,name:goods.name,money:goods.price.toFixed(2),return_url:location.href})});
+  const res=await fetch('/api/pay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goods_id:id,name:goods.name,money:goods.price.toFixed(2),email:email,return_url:location.href})});
   const data=await res.json();
   if(data.pay_url)location.href=data.pay_url;
 }

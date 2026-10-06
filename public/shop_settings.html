@@ -42,7 +42,7 @@ input,textarea{width:100%;padding:12px;border:1px solid #eee;border-radius:10px;
 </div>
 <script>
 const uid=localStorage.getItem('uid');
-document.getElementById('shopLink').textContent='https://serverdo.ccwu.cc/shop.html?uid='+uid;
+document.getElementById('shopLink').textContent=location.origin+'/shop.html?uid='+uid;
 function save(){alert('保存成功')}
 </script>
 </body>
